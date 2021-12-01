@@ -12,6 +12,5 @@ pub fn count_greater_than_prev(list: &[u16]) -> usize {
     list.iter()
         .skip(1)
         .zip(list.iter())
-        .map(|(current, prev)| (current > prev) as usize)
-        .sum::<usize>()
+        .fold(0, |acc, (current, prev)| acc + (current > prev) as usize)
 }

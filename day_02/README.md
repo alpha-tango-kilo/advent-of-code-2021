@@ -8,3 +8,6 @@ A simple enough instruction parser, I feel like Rust is really well-suited to wr
 Really hate doing all the integer type casting but also can't bear to use a `u32` when a `u8` is enough
 
 ## Part two
+
+An interesting twist, easy enough to implement.
+Probably could/should have used `AddAssign` for both tasks, but here we are

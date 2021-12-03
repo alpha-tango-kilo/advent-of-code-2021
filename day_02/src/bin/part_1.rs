@@ -1,6 +1,5 @@
 use day_02::input_vec_direction;
-use day_02::Direction::{self, *};
-use std::fs;
+use day_02::Direction::*;
 
 fn main() {
     let input = input_vec_direction();

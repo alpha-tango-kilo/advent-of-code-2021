@@ -24,14 +24,6 @@ pub fn input_matrix() -> Array2<bool> {
     matrix
 }
 
-pub fn most_common_by_col(matrix: &Array2<bool>) -> Vec<bool> {
-    matrix
-        .columns()
-        .into_iter()
-        .map(|col| col.iter().filter(|b| **b).count() > col.len() / 2)
-        .collect()
-}
-
 pub fn bool_slice_to_int(bools: &[bool]) -> usize {
     bools
         .iter()

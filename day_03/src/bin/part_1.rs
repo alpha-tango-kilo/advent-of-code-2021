@@ -1,4 +1,5 @@
-use day_03::{bool_slice_to_int, input_matrix, most_common_by_col};
+use ndarray::Array2;
+use day_03::*;
 
 fn main() {
     let matrix = input_matrix();
@@ -12,4 +13,12 @@ fn main() {
 
 fn not_bool_slice(bools: &[bool]) -> Vec<bool> {
     bools.iter().map(|b| !*b).collect()
+}
+
+fn most_common_by_col(matrix: &Array2<bool>) -> Vec<bool> {
+    matrix
+        .columns()
+        .into_iter()
+        .map(|col| col.iter().filter(|b| **b).count() > col.len() / 2)
+        .collect()
 }

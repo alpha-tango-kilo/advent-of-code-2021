@@ -9,3 +9,5 @@ Besides having to re-learn `ndarray`, I think it just about worked out.
 The rest of it however, feels disgustingly clunky and inelegant and I'm hating everything 😅
 
 ## Part two
+
+Horrible. Disgusting. Gross.

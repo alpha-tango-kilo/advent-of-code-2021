@@ -1,5 +1,5 @@
-use ndarray::Array2;
 use day_03::*;
+use ndarray::Array2;
 
 fn main() {
     let matrix = input_matrix();

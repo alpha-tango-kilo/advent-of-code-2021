@@ -18,7 +18,8 @@ pub fn input_game() -> (Vec<u8>, GameState) {
         .skip(1)
         .map(|board_str| {
             let mut array = Array2::<u8>::default((5, 5));
-            board_str.split_ascii_whitespace()
+            board_str
+                .split_ascii_whitespace()
                 .map(|num_str| num_str.parse::<u8>().expect("Bad input"))
                 .zip(array.iter_mut())
                 .for_each(|(num, cell)| *cell = num);
@@ -33,13 +34,15 @@ pub fn input_game() -> (Vec<u8>, GameState) {
 pub struct GameState {
     inner: Vec<Array2<u8>>,
     played: Vec<u8>,
+    already_won: Vec<usize>,
 }
 
 impl GameState {
     pub fn new(boards: Vec<Array2<u8>>) -> Self {
         GameState {
             inner: boards,
-            played: Vec::with_capacity(75),
+            played: Vec::new(),
+            already_won: Vec::new(),
         }
     }
 
@@ -47,7 +50,7 @@ impl GameState {
         self.played.push(ball);
     }
 
-    // Return index of winner
+    // For first exercise only, returns the index of the winner
     pub fn winner(&self) -> Option<usize> {
         self.inner.iter().enumerate().find_map(|(index, board)| {
             if self.has_won(board) {
@@ -58,18 +61,45 @@ impl GameState {
         })
     }
 
-    pub fn score_of(&self, player_index: usize) -> u16 {
+    /// Returns the indexes of the winner(s)
+    pub fn winners(&mut self) -> Option<Vec<usize>> {
+        let new_winner_indexes = self
+            .inner
+            .iter()
+            .enumerate()
+            .filter_map(|(index, board)| {
+                if !self.already_won.contains(&index) && self.has_won(board) {
+                    Some(index)
+                } else {
+                    None
+                }
+            })
+            .collect::<Vec<_>>();
+
+        if !new_winner_indexes.is_empty() {
+            self.already_won.extend_from_slice(&new_winner_indexes);
+            Some(new_winner_indexes)
+        } else {
+            None
+        }
+    }
+
+    pub fn score_of(&self, player_index: usize) -> u32 {
         let sum_of_unmarked = self
             .inner
             .get(player_index)
             .expect("Out of range player_index")
             .into_iter()
             .filter(|num| !self.played.contains(num))
-            .map(|u8_ref| *u8_ref as u16)
-            .sum::<u16>();
+            .map(|u8_ref| *u8_ref as u32)
+            .sum::<u32>();
         let last_played =
-            *self.played.last().expect("No balls have been drawn yet") as u16;
+            *self.played.last().expect("No balls have been drawn yet") as u32;
         sum_of_unmarked * last_played
+    }
+
+    pub fn players(&self) -> usize {
+        self.inner.len()
     }
 
     fn has_won(&self, board: &Array2<u8>) -> bool {

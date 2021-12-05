@@ -9,3 +9,5 @@ Really liked the premise, really managed to continually mess up the co-ordinates
 Got there in the end, still pretty happy with my solution on the whole, though `Line::traversal_vec2` and `Line::steps_between` are pretty ugly I think
 
 ## Part two
+
+Fortunately my solution already allowed for diagonals, literally all I had to do was remove the filter from line 8 of my part one solution

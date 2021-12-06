@@ -5,7 +5,7 @@ fn main() {
     let mut grid = get_empty_grid(&input);
     input
         .into_iter()
-        .flat_map(|line| line.points_between().into_iter())
+        .flat_map(|line| line.points_between())
         .for_each(|point| {
             // Array indexes by y, then x
             grid[(point.y as usize, point.x as usize)] += 1;

@@ -6,7 +6,7 @@ fn main() {
     input
         .into_iter()
         .filter(|line| line.vertical() || line.horizontal())
-        .flat_map(|line| line.points_between().into_iter())
+        .flat_map(|line| line.points_between())
         .for_each(|point| {
             // Array indexes by y, then x
             grid[(point.y as usize, point.x as usize)] += 1;

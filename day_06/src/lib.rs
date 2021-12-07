@@ -51,16 +51,10 @@ mod test {
 
     #[test]
     fn simulate() {
-        let mut school = LanternFishSchool::new(&[3,4,3,1,2][..]);
+        let mut school = LanternFishSchool::new(&[3, 4, 3, 1, 2][..]);
         school.simulate_once();
-        assert_eq!(
-            school.inner,
-            [1, 1, 2, 1, 0, 0, 0, 0, 0],
-        );
+        assert_eq!(school.inner, [1, 1, 2, 1, 0, 0, 0, 0, 0],);
         school.simulate_once();
-        assert_eq!(
-            school.inner,
-            [1, 2, 1, 0, 0, 0, 1, 0, 1],
-        );
+        assert_eq!(school.inner, [1, 2, 1, 0, 0, 0, 1, 0, 1],);
     }
 }

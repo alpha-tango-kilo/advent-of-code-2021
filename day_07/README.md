@@ -9,3 +9,6 @@ After yesterday though, I was nervous about efficiency and so chose to keep a fr
 Otherwise, the solution to this problem was fairly easy
 
 ## Part two
+
+I recognised the use of triangle numbers quite quickly so was able to use a formula instead of iteratively calculating the fuel need.
+The challenge definitely felt like it should have been day 3 for how easy it was

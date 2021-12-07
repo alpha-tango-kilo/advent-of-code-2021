@@ -19,7 +19,11 @@ fn fuel_use_to(map: &HashMap<u16, u16>, target_pos: u16) -> u32 {
     map.iter()
         .map(|(pos, count)| {
             let diff = (*pos as i32 - target_pos as i32).abs() as u32;
-            diff * *count as u32
+            triangle_number(diff) * *count as u32
         })
         .sum()
+}
+
+const fn triangle_number(index: u32) -> u32 {
+    index * (index + 1) / 2
 }

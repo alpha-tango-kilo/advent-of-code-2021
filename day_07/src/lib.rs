@@ -20,12 +20,3 @@ pub fn input_hash_map() -> HashMap<u16, u16> {
 pub fn get_max_key<K: Ord, V>(map: &HashMap<K, V>) -> &K {
     map.keys().max().expect("Max key requested for empty map")
 }
-
-pub fn fuel_use_to(map: &HashMap<u16, u16>, target_pos: u16) -> u32 {
-    map.iter()
-        .map(|(pos, count)| {
-            let diff = (*pos as i32 - target_pos as i32).abs() as u32;
-            diff * *count as u32
-        })
-        .sum()
-}

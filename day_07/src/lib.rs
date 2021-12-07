@@ -20,3 +20,15 @@ pub fn input_hash_map() -> HashMap<u16, u16> {
 pub fn get_max_key<K: Ord, V>(map: &HashMap<K, V>) -> &K {
     map.keys().max().expect("Max key requested for empty map")
 }
+
+pub fn least_fuel_use(
+    freq_map: &HashMap<u16, u16>,
+    fuel_fn: fn(&HashMap<u16, u16>, u16) -> u32,
+) -> (u16, u32) {
+    let max = *get_max_key(freq_map);
+    (0..=max)
+        .into_iter()
+        .map(|target_pos| (target_pos, fuel_fn(freq_map, target_pos)))
+        .min_by(|(_, fuel_use_a), (_, fuel_use_b)| fuel_use_a.cmp(fuel_use_b))
+        .unwrap()
+}

@@ -12,7 +12,7 @@ fn main() {
                 .split_ascii_whitespace()
         })
         .filter(|str| {
-            let len = str.len() as u8;
+            let len = str.len();
             len == SEGMENTS_NEEDED[1]
                 || len == SEGMENTS_NEEDED[4]
                 || len == SEGMENTS_NEEDED[7]

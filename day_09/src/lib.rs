@@ -80,15 +80,9 @@ impl Grid {
         &self,
         point: Point,
     ) -> impl Iterator<Item = Point> {
-        self.get_adjacent_points(point).into_iter().filter(
-            move |Point { value, .. }| {
-                *value < 9
-                    && value
-                        .checked_sub(point.value)
-                        .map(|diff| diff == 1)
-                        .unwrap_or(false)
-            },
-        )
+        self.get_adjacent_points(point)
+            .into_iter()
+            .filter(|Point { value, .. }| *value < 9)
     }
 }
 
@@ -242,75 +236,6 @@ mod test {
     }
 
     #[test]
-    fn adjacent_filtered() {
-        let grid = Grid {
-            inner: WEBSITE_EXAMPLE.to_vec(),
-            rows: 5,
-            cols: 10,
-        };
-        assert_eq!(
-            grid.get_adjacent_points_filtered(Point {
-                x: 8,
-                y: 0,
-                value: 1
-            })
-            .collect::<Vec<_>>(),
-            vec![
-                Point {
-                    x: 8,
-                    y: 1,
-                    value: 2
-                },
-                Point {
-                    x: 7,
-                    y: 0,
-                    value: 2
-                },
-            ],
-        );
-        assert_eq!(
-            grid.get_adjacent_points_filtered(Point {
-                x: 2,
-                y: 2,
-                value: 5
-            })
-            .collect::<Vec<_>>(),
-            vec![
-                Point {
-                    x: 2,
-                    y: 3,
-                    value: 6
-                },
-                Point {
-                    x: 3,
-                    y: 2,
-                    value: 6
-                },
-            ],
-        );
-        assert_eq!(
-            grid.get_adjacent_points_filtered(Point {
-                x: 9,
-                y: 0,
-                value: 0
-            })
-            .collect::<Vec<_>>(),
-            vec![
-                Point {
-                    x: 9,
-                    y: 1,
-                    value: 1
-                },
-                Point {
-                    x: 8,
-                    y: 0,
-                    value: 1
-                },
-            ],
-        );
-    }
-
-    #[test]
     fn basin_propogation() {
         let grid = Grid {
             inner: WEBSITE_EXAMPLE.to_vec(),
@@ -456,10 +381,7 @@ mod test {
             actual.to_explore, expected.to_explore,
             "Different exploration prospects"
         );
-        assert_eq!(
-            actual.basin_size(),
-            Some(9),
-        );
+        assert_eq!(actual.basin_size(), Some(9),);
         assert_eq!(
             actual.in_basin, expected.in_basin,
             "Different elements in basin"
@@ -473,7 +395,8 @@ mod test {
             rows: 5,
             cols: 10,
         };
-        let mut basin_sizes = grid.get_basins()
+        let mut basin_sizes = grid
+            .get_basins()
             .map(|mut basin| {
                 basin.propogate_all();
                 basin.basin_size().unwrap()
@@ -485,11 +408,7 @@ mod test {
             &[3, 9, 9, 14],
             "Incorrect basins sizes produced"
         );
-        let answer = basin_sizes
-            .iter()
-            .rev()
-            .take(3)
-            .product::<usize>();
+        let answer = basin_sizes.iter().rev().take(3).product::<usize>();
         assert_eq!(answer, 1134, "Incorrect product of top 3");
     }
 }

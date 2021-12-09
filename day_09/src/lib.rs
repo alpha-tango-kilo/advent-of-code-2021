@@ -23,46 +23,58 @@ pub struct Grid {
 }
 
 impl Grid {
-    fn get(&self, x: usize, y: usize) -> u8 {
-        self.inner.get(self.cols * y + x).copied().unwrap()
+    fn get(&self, x: usize, y: usize) -> Point {
+        let value = self.inner.get(self.cols * y + x).copied().unwrap();
+        Point { x, y, value }
     }
 
-    fn co_ord_iter(&self) -> impl Iterator<Item = (usize, usize)> + '_ {
+    fn iter(&self) -> impl Iterator<Item = Point> + '_ {
         (0..self.rows)
             .into_iter()
-            .flat_map(|y| (0..self.cols).into_iter().map(move |x| (x, y)))
+            .flat_map(move |y| (0..self.cols).into_iter().map(move |x| self.get(x, y)))
     }
 
     pub fn get_local_minima_risk_level(&self) -> impl Iterator<Item = u8> + '_ {
-        self.co_ord_iter().filter_map(|(x, y)| {
-            let current = self.get(x, y);
-            // Up
-            if let Some(up) = y.checked_sub(1) {
-                if self.get(x, up) <= current {
-                    return None;
-                }
+        self.iter().filter_map(|current| {
+            if !self
+                .get_adjacent_points(current)
+                .into_iter()
+                .any(|Point { value, .. }| value <= current.value)
+            {
+                Some(current.value + 1)
+            } else {
+                None
             }
-            // Down
-            if let Some(down) = y.checked_add(1).filter(|y| *y < self.rows) {
-                if self.get(x, down) <= current {
-                    return None;
-                }
-            }
-            // Left
-            if let Some(left) = x.checked_sub(1) {
-                if self.get(left, y) <= current {
-                    return None;
-                }
-            }
-            // Right
-            if let Some(right) = x.checked_add(1).filter(|x| *x < self.cols) {
-                if self.get(right, y) <= current {
-                    return None;
-                }
-            }
-            Some(current + 1)
         })
     }
+
+    fn get_adjacent_points(&self, Point { x, y, .. }: Point) -> Vec<Point> {
+        let mut v = Vec::with_capacity(4);
+        // Up
+        if let Some(up) = y.checked_sub(1) {
+            v.push(self.get(x, up));
+        }
+        // Down
+        if let Some(down) = y.checked_add(1).filter(|y| *y < self.rows) {
+            v.push(self.get(x, down));
+        }
+        // Left
+        if let Some(left) = x.checked_sub(1) {
+            v.push(self.get(left, y));
+        }
+        // Right
+        if let Some(right) = x.checked_add(1).filter(|x| *x < self.cols) {
+            v.push(self.get(right, y));
+        }
+        v
+    }
+}
+
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
+struct Point {
+    x: usize,
+    y: usize,
+    value: u8,
 }
 
 #[cfg(test)]
@@ -76,9 +88,9 @@ mod test {
             rows: 4,
             cols: 2,
         };
-        assert_eq!(grid.get(1, 0), 2);
-        assert_eq!(grid.get(1, 2), 6);
-        assert_eq!(grid.get(0, 1), 3);
+        assert_eq!(grid.get(1, 0).value, 2);
+        assert_eq!(grid.get(1, 2).value, 6);
+        assert_eq!(grid.get(0, 1).value, 3);
     }
 
     #[test]
@@ -88,19 +100,23 @@ mod test {
             rows: 2,
             cols: 4,
         };
-        let expected: Vec<(usize, usize)> = vec![
-            (0, 0),
-            (1, 0),
-            (2, 0),
-            (3, 0),
-            (0, 1),
-            (1, 1),
-            (2, 1),
-            (3, 1),
+        let expected: Vec<(usize, usize, u8)> = vec![
+            (0, 0, 1),
+            (1, 0, 2),
+            (2, 0, 3),
+            (3, 0, 4),
+            (0, 1, 5),
+            (1, 1, 6),
+            (2, 1, 7),
+            (3, 1, 8),
         ];
-        grid.co_ord_iter()
+        grid.iter()
             .zip(expected)
-            .for_each(|(a, b)| assert_eq!(a, b));
+            .for_each(|(a, b)| {
+                assert_eq!(a.x, b.0);
+                assert_eq!(a.y, b.1);
+                assert_eq!(a.value, b.2);
+            });
     }
 
     #[test]

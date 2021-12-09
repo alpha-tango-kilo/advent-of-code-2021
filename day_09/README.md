@@ -9,3 +9,9 @@ This would have been alright if I hadn't also made really poorly designed tests 
 However after copious painful debugging we are now all good™
 
 ## Part two
+
+I hate to admit defeat but for now I have to.
+All of the tests I've written pass, the code is doing exactly what I expect it to.
+There must be some strange edge case that only occurs in the bigger data set that sends something wonky.
+I've thought of an alternative approach but I don't have the energy right now.
+Shall be taking the loss on this one unless I get a glut of spare time during another day

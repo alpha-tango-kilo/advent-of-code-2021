@@ -57,6 +57,10 @@ name = "day_09"
 version = "0.1.0"
 
 [[package]]
+name = "day_10"
+version = "0.1.0"
+
+[[package]]
 name = "matrixmultiply"
 version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"

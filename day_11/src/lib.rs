@@ -119,17 +119,33 @@ impl OctopusGrid {
         self.flashed.iter_mut().for_each(|b| *b = false);
     }
 
+    fn simulate(&mut self) {
+        debug_assert!(self
+            .inner
+            .iter()
+            .all(|o| *o < Self::FLASH_THRESHOLD));
+        self.increment_all();
+        self.flash_all();
+        self.flashes += self.flashed.iter().filter(|b| **b).count();
+        self.reset();
+    }
+
     pub fn simulate_n(&mut self, n: usize) {
         for _ in 0..n {
-            debug_assert!(self
-                .inner
-                .iter()
-                .all(|o| *o < Self::FLASH_THRESHOLD));
+            self.simulate();
+        }
+    }
+
+    pub fn simulate_until_epilepsy(&mut self) -> usize {
+        let mut count = 0;
+        while !self.flashed.iter().all(|b| *b) {
+            count += 1;
+            self.reset();
             self.increment_all();
             self.flash_all();
             self.flashes += self.flashed.iter().filter(|b| **b).count();
-            self.reset();
         }
+        count
     }
 
     pub fn flashes(&self) -> usize {
@@ -152,7 +168,7 @@ mod test {
             5,
         );
 
-        octopi.simulate_n(1);
+        octopi.simulate();
         assert_eq!(
             &octopi.inner,
             &[
@@ -162,7 +178,7 @@ mod test {
         );
         assert_eq!(octopi.flashes(), 9);
 
-        octopi.simulate_n(1);
+        octopi.simulate();
         assert_eq!(
             &octopi.inner,
             &[

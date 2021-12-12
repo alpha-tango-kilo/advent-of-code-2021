@@ -8,7 +8,8 @@ fn main() {
         let pathial = paths.remove(0);
         let current_pos = pathial.last().unwrap();
         if current_pos.name != "end" {
-            cave_system.connected_to(current_pos)
+            cave_system
+                .connected_to(current_pos)
                 .filter(|cave| cave.big || !pathial.contains(cave))
                 .for_each(|cave| {
                     let mut next = pathial.clone();
@@ -23,5 +24,8 @@ fn main() {
         .map(|path| day_12::format_path(path))
         .collect::<Vec<_>>();
     println!("Paths: {:?}", &paths);*/
-    println!("There are {} paths that visit small caves at most once", complete.len());
+    println!(
+        "There are {} paths that visit small caves at most once",
+        complete.len()
+    );
 }

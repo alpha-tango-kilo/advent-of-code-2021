@@ -120,10 +120,7 @@ impl OctopusGrid {
     }
 
     fn simulate(&mut self) {
-        debug_assert!(self
-            .inner
-            .iter()
-            .all(|o| *o < Self::FLASH_THRESHOLD));
+        debug_assert!(self.inner.iter().all(|o| *o < Self::FLASH_THRESHOLD));
         self.increment_all();
         self.flash_all();
         self.flashes += self.flashed.iter().filter(|b| **b).count();

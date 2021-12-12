@@ -1,4 +1,4 @@
-use day_12::{input_cave_graph, format_path};
+use day_12::input_cave_graph;
 
 fn main() {
     let cave_system = input_cave_graph();
@@ -19,9 +19,9 @@ fn main() {
             complete.push(pathial);
         }
     }
-    let paths = complete.into_iter()
-        .map(|path| format_path(&path))
+    /*let paths = complete.iter()
+        .map(|path| day_12::format_path(path))
         .collect::<Vec<_>>();
-    //println!("Paths: {:?}", &paths);
-    println!("There are {} paths that visit small caves at most once", paths.len());
+    println!("Paths: {:?}", &paths);*/
+    println!("There are {} paths that visit small caves at most once", complete.len());
 }

@@ -3,7 +3,7 @@ use std::fs;
 use std::rc::Rc;
 
 pub fn input_cave_graph() -> CaveGraph {
-    let mut nodes = HashSet::new();
+    let mut start = None;
     let paths = fs::read_to_string("day_12/input")
         .expect("Failed to read input file")
         .lines()
@@ -11,21 +11,15 @@ pub fn input_cave_graph() -> CaveGraph {
             let mut split = line.split('-');
             let a = Rc::new(Cave::from(split.next().expect("Bad input")));
             let b = Rc::new(Cave::from(split.next().expect("Bad input")));
-            nodes.insert(a.clone());
-            nodes.insert(b.clone());
+            if a.name == "start" {
+                start = Some(a.clone());
+            }
             (a, b)
         })
         .collect::<Vec<_>>();
 
-    let start = nodes
-        .iter()
-        .find(|cave| cave.name.eq("start"))
-        .expect("No start")
-        .clone();
-
     CaveGraph {
-        start,
-        nodes,
+        start: start.unwrap(),
         paths,
     }
 }
@@ -59,7 +53,6 @@ impl From<&str> for Cave {
 
 pub struct CaveGraph {
     pub start: Rc<Cave>,
-    nodes: HashSet<Rc<Cave>>,
     paths: Vec<(Rc<Cave>, Rc<Cave>)>,
 }
 

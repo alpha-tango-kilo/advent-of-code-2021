@@ -12,3 +12,5 @@ I ended up re-writing the solution basically from scratch (keeping only `Fold` a
 Nearly two days after the task was released 🥲
 
 ## Part two
+
+Wow that's cool! Really fun result after all that stupid folding *grumbles*

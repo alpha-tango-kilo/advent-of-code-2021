@@ -42,17 +42,16 @@ pub fn fold_all(dots: CoOrds, folds: &[Fold]) -> CoOrds {
     folds.iter().fold(dots, |acc, f| fold(acc, *f))
 }
 
-#[cfg(test)]
-fn format_dots(dots: &CoOrds) -> String {
+pub fn format_dots(dots: &CoOrds) -> String {
     let cols = dots.iter().map(|(x, _)| *x).max().unwrap() + 1;
     let rows = dots.iter().map(|(_, y)| *y).max().unwrap() + 1;
     let mut output = String::with_capacity((rows * cols) as usize);
     (0..rows).into_iter().for_each(|y| {
         (0..cols).into_iter().for_each(|x| {
             if dots.contains(&(x, y)) {
-                output.push('#');
+                output.push('█');
             } else {
-                output.push('.');
+                output.push(' ');
             }
         });
         output.push('\n');
@@ -100,9 +99,6 @@ mod test {
         let co_ords = fold(co_ords, folds[0]);
         let actual = format_dots(&co_ords);
         println!("After:\n{}", &actual);
-        let _expected = "#.##..#..#.\n#...#......\n......#...#\n#...#......\n.#.#..#.###\n...........\n...........\n";
         assert_eq!(co_ords.len(), 17, "Wrong number of dots");
-        // Fails because empty lines are not preserved
-        //assert_eq!(&actual, expected, "Wrong dot positions");
     }
 }

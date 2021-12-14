@@ -1,10 +1,7 @@
-use day_13::input_dot_grid_instructions;
+use day_13::{fold, input_co_ords_folds};
 
 fn main() {
-    let (mut grid, instructions) = input_dot_grid_instructions();
-    instructions.into_iter().for_each(|fold| grid.fold(fold));
-    println!("Dots visible after applying all the folds: {}", grid.dots());
-    // 82, wrong
-    // 62, wrong
-    // 143, too low
+    let (co_ords, folds) = input_co_ords_folds();
+    let co_ords = fold(co_ords, folds[0]);
+    println!("Dots after one fold: {}", co_ords.len());
 }

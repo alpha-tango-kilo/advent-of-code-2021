@@ -1,9 +1,8 @@
-use day_14::naive::input_polymer_rules;
+use day_14::smart_perhaps::*;
 
 fn main() {
-    let (mut polymer, rules) = input_polymer_rules();
-    polymer.pair_insertion_many(&rules, 10);
-    let freq_map = polymer.freq_map();
+    let (chars, rules) = input_chars_rules();
+    let freq_map = freq_map(&chars, &rules, 40);
     let lowest = freq_map.iter().min_by(|a, b| a.1.cmp(b.1)).unwrap().1;
     let highest = freq_map.iter().max_by(|a, b| a.1.cmp(b.1)).unwrap().1;
     println!(

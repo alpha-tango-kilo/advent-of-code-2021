@@ -10,7 +10,7 @@ pub mod naive {
         string_polymer_rules(&input)
     }
 
-    pub(crate) fn string_polymer_rules(s: &str) -> (Polymer, Rules) {
+    fn string_polymer_rules(s: &str) -> (Polymer, Rules) {
         let mut lines = s.lines();
 
         let polymer = Polymer {
@@ -75,14 +75,28 @@ pub mod naive {
             self.inner.iter().collect()
         }
     }
+
+    #[cfg(test)]
+    mod test {
+        use super::string_polymer_rules;
+
+        const WEBSITE_EXAMPLE: &str = "NNCB\n\nCH -> B\nHH -> N\nCB -> H\nNH -> C\nHB -> C\nHC -> B\nHN -> C\nNN -> C\nBH -> H\nNC -> B\nNB -> B\nBN -> B\nBB -> N\nBC -> B\nCC -> N\nCN -> C\n";
+
+        #[test]
+        fn expansion() {
+            let (mut polymer, rules) = string_polymer_rules(WEBSITE_EXAMPLE);
+            polymer.pair_insertion(&rules);
+            assert_eq!(&polymer.to_string(), "NCNBCHB",);
+        }
+    }
 }
 
-pub mod smart_perhaps {
+pub mod smart {
     use std::collections::HashMap;
     use std::fs;
 
     pub type Rules = HashMap<(char, char), ((char, char), (char, char))>;
-    pub type FreqMap = HashMap<char, usize>;
+    pub type FreqMap<T> = HashMap<T, usize>;
 
     pub fn input_chars_rules() -> (Vec<char>, Rules) {
         let input = fs::read_to_string("day_14/input")
@@ -108,53 +122,89 @@ pub mod smart_perhaps {
         (chars, rules)
     }
 
-    pub fn freq_map(start: &[char], rules: &Rules, depth: usize) -> FreqMap {
-        let mut freq_map = HashMap::new();
-        start.windows(2).enumerate().for_each(|(window_index, slice)| {
-            println!("Window {}/19", window_index + 1);
-            expand_recursively(
-                (slice[0], slice[1]),
-                rules,
-                &mut freq_map,
-                depth,
-                0,
-            )
+    fn build_rule_freq_map(chars: &[char]) -> FreqMap<(char, char)> {
+        let mut map = HashMap::new();
+        chars.windows(2).for_each(|slice| {
+            *map.entry((slice[0], slice[1])).or_default() += 1
         });
-        freq_map
+        map
     }
 
-    fn expand_recursively(
-        pair: (char, char),
+    fn build_char_freq_map(
+        start: &[char],
+        rule_freq_map: FreqMap<(char, char)>,
+    ) -> FreqMap<char> {
+        let mut map = HashMap::new();
+        rule_freq_map.into_iter().for_each(|(pair, freq)| {
+            *map.entry(pair.0).or_default() += freq;
+            //*map.entry(pair.1).or_default() += freq;
+        });
+        *map.entry(*start.last().unwrap()).or_default() += 1;
+        map
+    }
+
+    pub fn freq_map(
+        start: &[char],
         rules: &Rules,
-        freq_map: &mut FreqMap,
-        max_depth: usize,
         depth: usize,
-    ) {
-        if depth < max_depth {
-            let (l, r) = *rules.get(&pair).unwrap();
-            update_freq_map(freq_map, &[l.0, l.1, r.0, r.1]);
-            expand_recursively(l, rules, freq_map, max_depth, depth + 1);
-            expand_recursively(r, rules, freq_map, max_depth, depth + 1);
+    ) -> FreqMap<char> {
+        let initial_map = build_rule_freq_map(start);
+        let rule_freq_map =
+            (0..depth)
+                .into_iter()
+                .fold(initial_map, |rule_freq_map, _| {
+                    let mut next_map =
+                        HashMap::with_capacity(rule_freq_map.len());
+                    rule_freq_map.into_iter().for_each(|(rule, freq)| {
+                        let (l, r) = *rules.get(&rule).unwrap();
+                        *next_map.entry(l).or_default() += freq;
+                        *next_map.entry(r).or_default() += freq;
+                    });
+                    next_map
+                });
+        build_char_freq_map(start, rule_freq_map)
+    }
+
+    #[cfg(test)]
+    mod test {
+        use super::*;
+
+        const WEBSITE_EXAMPLE: &str = "NNCB\n\nCH -> B\nHH -> N\nCB -> H\nNH -> C\nHB -> C\nHC -> B\nHN -> C\nNN -> C\nBH -> H\nNC -> B\nNB -> B\nBN -> B\nBB -> N\nBC -> B\nCC -> N\nCN -> C\n";
+        #[test]
+        fn rule_freq_map_creation() {
+            let (chars, _) = string_chars_rules(WEBSITE_EXAMPLE);
+            let rule_freq_map = build_rule_freq_map(&chars);
+
+            assert_eq!(rule_freq_map.get(&('N', 'N')), Some(&1));
+            assert_eq!(rule_freq_map.get(&('N', 'C')), Some(&1));
+            assert_eq!(rule_freq_map.get(&('C', 'B')), Some(&1));
+            assert_eq!(rule_freq_map.len(), 3);
         }
-    }
 
-    fn update_freq_map(freq_map: &mut FreqMap, chars: &[char]) {
-        chars
-            .iter()
-            .for_each(|c| *freq_map.entry(*c).or_default() += 1);
-    }
-}
+        #[test]
+        fn char_freq_map_creation() {
+            let (chars, _) = string_chars_rules(WEBSITE_EXAMPLE);
+            let rule_freq_map = build_rule_freq_map(&chars);
+            println!("{:?}", &rule_freq_map);
+            let char_freq_map = build_char_freq_map(&chars, rule_freq_map);
 
-#[cfg(test)]
-mod test {
-    use crate::naive::string_polymer_rules;
+            assert_eq!(char_freq_map.get(&'N'), Some(&2), "Miscounted Ns");
+            assert_eq!(char_freq_map.get(&'C'), Some(&1), "Miscounted Cs");
+            assert_eq!(char_freq_map.get(&'B'), Some(&1), "Miscounted Bs");
+            assert_eq!(char_freq_map.len(), 3, "Extraneous junk");
+        }
 
-    const WEBSITE_EXAMPLE: &str = "NNCB\n\nCH -> B\nHH -> N\nCB -> H\nNH -> C\nHB -> C\nHC -> B\nHN -> C\nNN -> C\nBH -> H\nNC -> B\nNB -> B\nBN -> B\nBB -> N\nBC -> B\nCC -> N\nCN -> C\n";
+        #[test]
+        fn expansion() {
+            let (chars, rules) = string_chars_rules(WEBSITE_EXAMPLE);
+            let char_freq_map = freq_map(&chars, &rules, 1);
+            println!("{:?}", &char_freq_map);
 
-    #[test]
-    fn expansion() {
-        let (mut polymer, rules) = string_polymer_rules(WEBSITE_EXAMPLE);
-        polymer.pair_insertion(&rules);
-        assert_eq!(&polymer.to_string(), "NCNBCHB",);
+            assert_eq!(char_freq_map.get(&'N'), Some(&2));
+            assert_eq!(char_freq_map.get(&'C'), Some(&2));
+            assert_eq!(char_freq_map.get(&'B'), Some(&2));
+            assert_eq!(char_freq_map.get(&'H'), Some(&1));
+            assert_eq!(char_freq_map.len(), 4);
+        }
     }
 }

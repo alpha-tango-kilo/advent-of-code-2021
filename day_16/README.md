@@ -9,3 +9,5 @@ As much as you should totally use a parsing library for this sort of task, I rea
 That having been said, with all the index arithmetic involved it was a bit off an off-by-one fiesta during testing, but I'm really happy with how it now works
 
 ## Part two
+
+Simple enough to add on this functionality, really nice challenge

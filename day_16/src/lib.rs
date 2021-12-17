@@ -75,13 +75,14 @@ impl Packet {
                         // total length in bits of the sub-packets contained by
                         // this packet
                         let point = usize::from_str_radix(&s[7..22], 2)?;
-                        let sub_packets = Packet::parse_many(&s[22..22 + point])?;
+                        let sub_packets =
+                            Packet::parse_many(&s[22..22 + point])?;
                         let packet = Packet {
                             version,
                             ptype: Operator {
                                 operator,
                                 sub_packets,
-                            }
+                            },
                         };
                         Ok((packet, &s[22 + point..]))
                     }
@@ -112,7 +113,9 @@ impl Packet {
     pub fn version_total(&self) -> u32 {
         let sub_packet_total = match &self.ptype {
             Literal(_) => 0,
-            Operator { sub_packets, .. } => sub_packets.iter().map(Packet::version_total).sum::<u32>(),
+            Operator { sub_packets, .. } => {
+                sub_packets.iter().map(Packet::version_total).sum::<u32>()
+            }
         };
         self.version as u32 + sub_packet_total
     }
@@ -120,7 +123,10 @@ impl Packet {
     pub fn evaluate(&self) -> u64 {
         match &self.ptype {
             Literal(n) => *n,
-            Operator { operator, sub_packets } => {
+            Operator {
+                operator,
+                sub_packets,
+            } => {
                 let operands_iter = sub_packets.iter().map(Packet::evaluate);
                 match *operator {
                     // Sum

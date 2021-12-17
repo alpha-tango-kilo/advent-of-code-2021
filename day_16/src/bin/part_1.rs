@@ -1,9 +1,6 @@
-use day_16::input_packets;
+use day_16::input_packet;
 
 fn main() {
-    let packets = input_packets();
-    let answer = packets.into_iter()
-        .map(|p| p.version_total())
-        .sum::<u32>();
-    println!("The total of all packet version numbers is: {}", answer);
+    let packet = input_packet();
+    println!("The total of all packet version numbers is: {}", packet.version_total());
 }

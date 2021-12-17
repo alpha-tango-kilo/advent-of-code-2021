@@ -2,11 +2,11 @@ use std::fs;
 use std::num::ParseIntError;
 use PacketType::*;
 
-pub fn input_packets() -> Vec<Packet> {
+pub fn input_packet() -> Packet {
     let input =
         fs::read_to_string("day_16/input").expect("Failed to read input file");
     let binary = hex_str_to_binary_str(&input);
-    Packet::parse_many(&binary).expect("Bad input")
+    Packet::parse_one(&binary).expect("Bad input").0
 }
 
 #[derive(Debug, Clone, Eq, PartialEq)]
@@ -115,6 +115,44 @@ impl Packet {
             Operator { sub_packets, .. } => sub_packets.iter().map(Packet::version_total).sum::<u32>(),
         };
         self.version as u32 + sub_packet_total
+    }
+
+    pub fn evaluate(&self) -> u64 {
+        match &self.ptype {
+            Literal(n) => *n,
+            Operator { operator, sub_packets } => {
+                let operands_iter = sub_packets.iter().map(Packet::evaluate);
+                match *operator {
+                    // Sum
+                    0 => operands_iter.sum::<u64>(),
+                    // Product
+                    1 => operands_iter.product::<u64>(),
+                    // Minimum
+                    2 => operands_iter.min().unwrap(),
+                    // Maximum
+                    3 => operands_iter.max().unwrap(),
+                    5 => {
+                        // Greater than
+                        let v = operands_iter.collect::<Vec<_>>();
+                        assert_eq!(v.len(), 2);
+                        (v[0] > v[1]) as u64
+                    }
+                    6 => {
+                        // Less than
+                        let v = operands_iter.collect::<Vec<_>>();
+                        assert_eq!(v.len(), 2);
+                        (v[0] < v[1]) as u64
+                    }
+                    7 => {
+                        // Equal to
+                        let v = operands_iter.collect::<Vec<_>>();
+                        assert_eq!(v.len(), 2);
+                        (v[0] == v[1]) as u64
+                    }
+                    _ => unreachable!("Bad packet: {:?}", self),
+                }
+            }
+        }
     }
 }
 

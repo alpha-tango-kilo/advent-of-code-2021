@@ -2,7 +2,7 @@ use std::cmp::Ordering;
 use std::collections::BinaryHeap;
 use std::{fs, usize};
 
-const DESTINATION: (usize, usize) = (99, 99);
+const DESTINATION: (usize, usize) = (2499, 2499);
 
 pub fn input_chiton_grid() -> ChitonGrid {
     let input =
@@ -19,7 +19,12 @@ fn string_chiton_grid(s: &str) -> ChitonGrid {
         .map(|n| n as u8)
         .collect::<Vec<_>>();
     let distances = vec![u32::MAX; inner.len()];
-    ChitonGrid { inner, distances, rows, cols }
+    ChitonGrid {
+        inner,
+        distances,
+        rows,
+        cols,
+    }
 }
 
 pub struct ChitonGrid {
@@ -63,8 +68,10 @@ impl ChitonGrid {
         // https://github.com/AxlLind/AdventOfCode2021/blob/main/src/bin/15.rs
 
         while let Some(exploration) = heap.pop() {
-            if exploration.weight < self.get_dist(exploration.x, exploration.y) {
-                *self.get_dist_mut(exploration.x, exploration.y) = exploration.weight;
+            if exploration.weight < self.get_dist(exploration.x, exploration.y)
+            {
+                *self.get_dist_mut(exploration.x, exploration.y) =
+                    exploration.weight;
                 //println!("Distances {:?}", &self.distances);
                 if let Some(solution) = self.explore(&mut heap, exploration) {
                     return solution;
@@ -127,6 +134,32 @@ impl ChitonGrid {
         }
         v
     }
+
+    pub fn expand_5x(&mut self) {
+        let mut big_lads = vec![self.inner.clone()];
+        for _ in 1..=9 {
+            big_lads.push(wrapped_inc(big_lads.last().unwrap()))
+        }
+        self.inner = [
+            0, 1, 2, 3, 4, 1, 2, 3, 4, 5, 2, 3, 4, 5, 6, 3, 4, 5, 6, 7, 3, 5,
+            6, 7, 8,
+        ]
+        .into_iter()
+        .flat_map(|x| big_lads[x].clone())
+        .collect();
+        self.rows *= 5;
+        self.cols *= 5;
+        debug_assert_eq!(
+            self.rows * self.cols,
+            self.inner.len(),
+            "Bad expansion"
+        );
+        self.distances = vec![u32::MAX; self.inner.len()];
+    }
+}
+
+fn wrapped_inc(slice: &[u8]) -> Vec<u8> {
+    slice.iter().map(|x| (*x + 1) % 9).collect()
 }
 
 #[derive(Debug, Copy, Clone)]
